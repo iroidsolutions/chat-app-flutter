@@ -100,7 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     NetworkImage(targetUser.profile!),
                               ),
                               title: Text(targetUser.username!),
-                              subtitle: Text(chatRoom.lastMsg!),
+                              subtitle: chatRoom.lastMsg!.isNotEmpty
+                                  ? Text(chatRoom.lastMsg!)
+                                  : const Text("Say, hii to your friend"),
                               trailing: const Icon(Icons.chevron_right),
                             ),
                           );

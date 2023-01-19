@@ -140,6 +140,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         networkImage == null ? const Icon(Icons.person) : null,
                   ),
           ),
+          Text(
+            AuthService.authService.auth.currentUser!.email!,
+            textAlign: TextAlign.center,
+          ),
           Container(
             padding: const EdgeInsets.all(20),
             child: CupertinoButton(

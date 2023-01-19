@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import 'auth/auth_services.dart';
 
-var uuid = Uuid();
+var uuid = const Uuid();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp().then((value) => Get.put(AuthService()));

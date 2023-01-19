@@ -33,7 +33,7 @@ class Messages extends StatelessWidget {
               MessageModel messageModel = MessageModel.fromMap(
                   data.docs[index].data() as Map<String, dynamic>);
               print(messageModel.createdon);
-              return MessageBubble(messageModel, messageModel.sender!);
+              return MessageBubble(messageModel, targetUser, user);
             },
           );
         } else {
