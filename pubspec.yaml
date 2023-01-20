@@ -39,7 +39,12 @@ dependencies:
   firebase_storage:
   uuid:
   flutter_document_picker:
-  flutter_pdfview:
+  syncfusion_flutter_pdfviewer:
+  intl:
+  cached_network_image: 
+  dio:
+  permission_handler:
+  path:
   path_provider:
   
 

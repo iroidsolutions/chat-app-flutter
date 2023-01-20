@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/auth/auth_services.dart';
 import 'package:chat_app/models/usermodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,6 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var uid;
   UserModel? userModel;
   var username;
+  var loading = false;
 
   void showOption() {
     showDialog(
@@ -92,13 +94,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     uid = AuthService.authService.auth.currentUser!.uid;
     getProfile();
   }
 
   void getProfile() async {
+    setState(() {
+      loading = true;
+    });
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection("user").doc(uid).get();
     Map<String, dynamic> profile = snapshot.data() as Map<String, dynamic>;
@@ -106,9 +110,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     userModel = UserModel.fromMap(profile);
     var picture = userModel!.profile;
     username = userModel!.username;
-    setState(() {
-      networkImage = picture;
-    });
+    if (picture != null) {
+      setState(() {
+        networkImage = picture;
+        loading = false;
+      });
+    } else {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -117,48 +128,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: Text(username ?? ""),
       ),
-      body: ListView(
-        children: [
-          MaterialButton(
-            padding: const EdgeInsets.all(10),
-            onPressed: () {
-              showOption();
-            },
-            child: image != null
-                ? CircleAvatar(
-                    radius: 50,
-                    backgroundImage: image != null ? FileImage(image!) : null,
-                    child: image == null ? const Icon(Icons.person) : null,
-                  )
-                : CircleAvatar(
-                    radius: 50,
-                    backgroundImage: networkImage != null
-                        ? NetworkImage(networkImage)
-                        : const NetworkImage(
-                            'https://i.stack.imgur.com/l60Hf.png'),
-                    child:
-                        networkImage == null ? const Icon(Icons.person) : null,
+      body: loading
+          ? Center(child: CircularProgressIndicator())
+          : ListView(
+              children: [
+                MaterialButton(
+                  padding: const EdgeInsets.all(10),
+                  onPressed: () {
+                    showOption();
+                  },
+                  child: image != null
+                      ? CircleAvatar(
+                          radius: 50,
+                          backgroundImage:
+                              image != null ? FileImage(image!) : null,
+                          child:
+                              image == null ? const Icon(Icons.person) : null,
+                        )
+                      : CachedNetworkImage(
+                          width: 100,
+                          height: 100,
+                          imageUrl: networkImage ??
+                              'https://i.stack.imgur.com/l60Hf.png',
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+
+                  // : CircleAvatar(
+                  //     radius: 50,
+                  //     backgroundImage: networkImage != null
+                  //         ? NetworkImage(networkImage)
+                  //         : const NetworkImage(
+                  //             'https://i.stack.imgur.com/l60Hf.png'),
+                  //     child:
+                  //         networkImage == null ? const Icon(Icons.person) : null,
+                  //   ),
+                ),
+                Text(
+                  AuthService.authService.auth.currentUser!.email!,
+                  textAlign: TextAlign.center,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: CupertinoButton(
+                    color: Colors.blue,
+                    minSize: 50,
+                    padding: const EdgeInsets.all(10),
+                    onPressed: () {
+                      submitProfile();
+                      // Navigator.of(context).pop();
+                    },
+                    child: const Text("Submit"),
                   ),
-          ),
-          Text(
-            AuthService.authService.auth.currentUser!.email!,
-            textAlign: TextAlign.center,
-          ),
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: CupertinoButton(
-              color: Colors.blue,
-              minSize: 50,
-              padding: const EdgeInsets.all(10),
-              onPressed: () {
-                submitProfile();
-                // Navigator.of(context).pop();
-              },
-              child: const Text("Submit"),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

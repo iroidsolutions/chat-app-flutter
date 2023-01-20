@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/models/chat_room.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,10 +26,24 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: widget.targetUser.profile!.isNotEmpty
-                  ? NetworkImage(widget.targetUser.profile!)
-                  : null,
+            CachedNetworkImage(
+              imageUrl: widget.targetUser.profile!,
+              imageBuilder: (context, imageProvider) {
+                return Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+              placeholder: (context, url) => const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
             const SizedBox(
               width: 10,

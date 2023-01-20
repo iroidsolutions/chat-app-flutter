@@ -70,37 +70,39 @@ class _NewMessagesState extends State<NewMessages> {
     file = await ImagePicker()
         .pickImage(source: ImageSource.gallery, imageQuality: 50);
 
-    TaskSnapshot taskSnapshot = await FirebaseStorage.instance
-        .ref("ChatRoom Image")
-        .child(widget.chatRoom.chatId!)
-        .child(widget.user.uid!)
-        .child("images")
-        .child(uuid.v1())
-        .putFile(File(file!.path));
+    if (file != null) {
+      TaskSnapshot taskSnapshot = await FirebaseStorage.instance
+          .ref("ChatRoom Image")
+          .child(widget.chatRoom.chatId!)
+          .child(widget.user.uid!)
+          .child("images")
+          .child(uuid.v1())
+          .putFile(File(file.path));
 
-    var getImageUrl = await taskSnapshot.ref.getDownloadURL();
-    print(getImageUrl);
+      var getImageUrl = await taskSnapshot.ref.getDownloadURL();
+      print(getImageUrl);
 
-    MessageModel messageModelImage = MessageModel(
-      messageid: uuid.v1(),
-      sender: widget.user.uid,
-      text: getImageUrl,
-      createdon: DateTime.now(),
-      seen: false,
-      msgType: "img",
-    );
+      MessageModel messageModelImage = MessageModel(
+        messageid: uuid.v1(),
+        sender: widget.user.uid,
+        text: getImageUrl,
+        createdon: DateTime.now(),
+        seen: false,
+        msgType: "img",
+      );
 
-    await FirebaseFirestore.instance
-        .collection("chatroom")
-        .doc(widget.chatRoom.chatId)
-        .collection("messages")
-        .doc(messageModelImage.messageid)
-        .set(messageModelImage.toMap());
+      await FirebaseFirestore.instance
+          .collection("chatroom")
+          .doc(widget.chatRoom.chatId)
+          .collection("messages")
+          .doc(messageModelImage.messageid)
+          .set(messageModelImage.toMap());
+    }
   }
 
   void selectDoc() async {
     String? doc = await FlutterDocumentPicker.openDocument();
-    if (doc!.isNotEmpty) {
+    if (doc != null) {
       File file = File(doc);
 
       TaskSnapshot taskSnapshot = await FirebaseStorage.instance
