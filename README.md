@@ -1,6 +1,6 @@
 # chat_app
 
-A new Flutter project.
+created by tirth
 
 ## Getting Started
 
